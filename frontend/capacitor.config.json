@@ -1,0 +1,5 @@
+{
+  "appId": "com.bloome.app",
+  "appName": "bloome",
+  "webDir": ".output/public"
+}

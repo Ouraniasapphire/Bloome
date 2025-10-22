@@ -7,27 +7,25 @@ import (
 	"syscall/js"
 )
 
-func add(this js.Value, args []js.Value) interface{} {
-    a := args[0].Int()
-    b := args[1].Int()
-    sum := a + b
-    return sum
+func buttonActive(this js.Value, args []js.Value) interface{} {
+    a := args[0].Bool()
+	a = !a
+    return a
 }
 
+func incNum(this js.Value, args []js.Value) interface{} {
+	a := args[0].Int();
+	a = a + 1
 
-func sub(this js.Value, args []js.Value) interface{} {
-	a := args[0].Int()
-	b := args[1].Int()
-	sum := a - b
-	return sum
+	return a
 }
+
 
 func main() {
 
 	g := js.Global()
-
-    g.Set("addNumbers", js.FuncOf(add))
-	g.Set("subNumbers", js.FuncOf(sub))
+	g.Set("bActive", js.FuncOf(buttonActive))
+	g.Set("incNum", js.FuncOf(incNum))
 
     select {} // keep Go running
 }

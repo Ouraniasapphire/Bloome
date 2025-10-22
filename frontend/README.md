@@ -30,3 +30,21 @@ Solid apps are built with _presets_, which optimise your project for deployment 
 By default, `npm run build` will generate a Node app that you can run with `npm start`. To use a different preset, add it to the `devDependencies` in `package.json` and specify in your `app.config.js`.
 
 ## This project was created with the [Solid CLI](https://github.com/solidjs-community/solid-cli)
+
+# Go + TS Ref
+
+## Go function Call
+
+``` go
+// Create the function
+func goFuncName(this js.Value, args []js.Value) interface{} {}
+
+// Expose the function
+js.global().Set("exposedFuncName", js.FuncOf(goFuncName))
+```
+
+## TS function Call
+``` ts
+// Get exposed function name
+const value = (window as any).exposedFuncName(Param(), Param());
+```

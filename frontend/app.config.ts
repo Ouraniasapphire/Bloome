@@ -2,12 +2,12 @@ import { defineConfig } from "@solidjs/start/config";
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
-  vite: {
-    plugins: [tailwindcss()]
-  },
+    vite: {
+        plugins: [tailwindcss()],
+    },
     server: {
-    mimeTypes: {
-      '.wasm': 'application/wasm'
+        mimeTypes: {
+            '.wasm': 'application/wasm',
+        },
     }
-  }
 });
