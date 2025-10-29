@@ -26,15 +26,15 @@ export default function RedirectPage() {
             email: user.email,
             role: selectedRole,
             created_at: new Date().toISOString(),
+            initiallogin: user.user_metadata?.initial_login,
         });
 
         if (insertError) console.error('Error inserting user:', insertError);
 
         // Clear localStorage
         localStorage.removeItem('selectedRole');
+        console.log(user.user_metadata?.initial_login)
 
-        // Redirect to overview
-        navigate(`/${user.user_metadata.dynamic_key}/overview`);
     });
 
     return <p class='text-center mt-10'>Signing you in...</p>;

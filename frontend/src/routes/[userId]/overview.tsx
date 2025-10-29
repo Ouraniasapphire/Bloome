@@ -69,10 +69,7 @@ export default function OverviewPage() {
             {!role() && (
                 <main class='flex flex-col justify-center items-center h-screen text-center'>
                     <p class='text-lg'>Invalid role or user not found.</p>
-                    <button
-                        class=' bg-blue-600 '
-                        onClick={() => navigate('/login')}
-                    >
+                    <button class=' bg-blue-600 ' onClick={() => navigate('/login')}>
                         Go to Login
                     </button>
                 </main>

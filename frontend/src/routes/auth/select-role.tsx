@@ -2,10 +2,11 @@ import { onMount, createSignal } from 'solid-js';
 import { useNavigate } from '@solidjs/router';
 import { supabase } from '~/lib/supabaseClient';
 import Loader from '~/components/Loader';
+import type { User } from '@supabase/supabase-js';
 
 export default function SelectRole() {
     const navigate = useNavigate();
-    const [authUser, setAuthUser] = createSignal<any>(null);
+    const [authUser, setAuthUser] = createSignal<User | null>(null);
     const [alreadyRegistered, setAlreadyRegistered] = createSignal(false);
     const [loading, setLoading] = createSignal(true);
 
@@ -21,22 +22,69 @@ export default function SelectRole() {
             const user = authData.user;
             setAuthUser(user);
 
-            // Check if user already exists in your table
-            const { data: existingUser } = await supabase
+            // Fetch user from 'users' table
+            const { data: existingUser, error: fetchError } = await supabase
                 .from('users')
                 .select('*')
                 .eq('id', user.id)
                 .maybeSingle();
 
-            if (existingUser) {
-                setAlreadyRegistered(true);
-                navigate(`/${existingUser.dynamic_key}/overview`);
+            if (fetchError) {
+                console.error('Error fetching user:', fetchError);
                 return;
             }
 
-            setAlreadyRegistered(false);
+            if (!existingUser) {
+                // User not yet registered in table; show role selection
+                setAlreadyRegistered(false);
+                return;
+            }
+
+            // User exists, check initial_login flag
+            const initialLogin = user.user_metadata?.initial_login;
+
+            setAlreadyRegistered(true);
+
+            if (initialLogin) {
+                navigate(`/${existingUser.dynamic_key}/setup`);
+            } else {
+                navigate(`/${existingUser.dynamic_key}/overview`);
+            }
         } catch (err) {
             console.error('Unexpected error:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const selectRole = async (role: 'student' | 'teacher' | 'admin') => {
+        const user = authUser();
+        if (!user || alreadyRegistered()) return;
+
+        setLoading(true);
+        try {
+            const { data: upsertedUser, error: upsertError } = await supabase
+                .from('users')
+                .upsert(
+                    {
+                        id: user.id,
+                        name: user.user_metadata?.full_name || user.email,
+                        email: user.email,
+                        role,
+                        created_at: new Date().toISOString(),
+                    },
+                    { onConflict: 'id' }
+                )
+                .select('*')
+                .single();
+
+            if (upsertError) {
+                console.error('Error saving role:', upsertError);
+                return;
+            }
+
+            setAlreadyRegistered(true);
+            navigate(`/${upsertedUser.dynamic_key}/setup`);
         } finally {
             setLoading(false);
         }
@@ -46,40 +94,9 @@ export default function SelectRole() {
         checkUser();
     });
 
-    const selectRole = async (role: 'student' | 'teacher' | 'admin') => {
-        const user = authUser();
-        if (!user || alreadyRegistered()) return;
-
-        setLoading(true);
-        const { data: upserted, error: upsertError } = await supabase
-            .from('users')
-            .upsert(
-                {
-                    id: user.id,
-                    name: user.user_metadata?.full_name || user.email,
-                    email: user.email,
-                    role,
-                    created_at: new Date().toISOString(),
-                },
-                { onConflict: 'id' }
-            )
-            .select('dynamicKey')
-            .single();
-
-        setLoading(false);
-
-        if (upsertError) {
-            console.error('Error saving role:', upsertError);
-            return;
-        }
-
-        navigate(`/${upserted.dynamicKey}/overview`);
-    };
-
     return (
         <main class='flex flex-col items-center justify-center h-screen gap-6 relative'>
             {loading() && <Loader />}
-
 
             {!loading() && !alreadyRegistered() && (
                 <div class='flex flex-col gap-4 w-64'>

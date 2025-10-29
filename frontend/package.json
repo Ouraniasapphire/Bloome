@@ -16,8 +16,10 @@
     "@solidjs/router": "^0.15.0",
     "@solidjs/start": "^1.1.0",
     "@supabase/supabase-js": "^2.75.1",
+    "dotenv": "^17.2.3",
     "postcss-apply": "^0.12.0",
     "solid-js": "^1.9.5",
+    "solid-motionone": "^1.0.4",
     "supabase": "^2.51.0",
     "vinxi": "^0.5.7"
   },

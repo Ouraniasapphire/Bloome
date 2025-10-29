@@ -52,7 +52,7 @@ const CourseView: Component = () => {
     });
 
     return (
-        <main class='min-h-screen bg-gray-950 p-8 text-white'>
+        <main class='min-h-screen p-8 text-white'>
             <h1 class='text-3xl font-bold mb-6'>My Courses</h1>
 
             <Show when={!loading()} fallback={<p class='text-gray-400'>Loading your courses...</p>}>
@@ -63,6 +63,9 @@ const CourseView: Component = () => {
                                 id={cls.id}
                                 name={cls.name}
                                 description={cls.description}
+                                hero_url={
+                                    cls.hero_url
+                                }
                                 section={cls.section}
                                 teacher_id={cls.teacher_id}
                                 teacher_name={cls.teacher_name}

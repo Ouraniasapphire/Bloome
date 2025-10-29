@@ -5,6 +5,7 @@ export type Class = {
     name: string;
     section?: string;
     description?: string;
+    hero_url: any;
     teacher_id?: string;
     teacher_name?: string;
     teacher_initials?: string;

@@ -1,5 +1,5 @@
-import ClassPanel from "../ClassPanel";
+import ClassPanel from '../StudioPanel';
 
 export default function TeacherPanel() {
-    return(<ClassPanel/>)
+    return <ClassPanel />;
 }

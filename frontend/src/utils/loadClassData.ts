@@ -1,14 +1,18 @@
 import { supabase } from '~/lib/supabaseClient';
 import type { User } from '~/types/user';
+import getAuthUser from './getAuthUser';
+import getStudents from './getStudents';
+import { Class } from '~/types/class';
 
 export type ClassData = {
-    id: string;
-    name: string;
-    section?: string;
-    description?: string;
-    teacher_id?: string;
-    teacher_name?: string;
-    teacher_initials?: string;
+    id: Class['id'];
+    name: Class['name'];
+    section: Class['section'];
+    description: Class['description'];
+    teacher_id: Class['teacher_id'];
+    teacher_name: Class['teacher_name'];
+    teacher_initials: Class['teacher_initials'];
+    hero_url: Class['hero_url'];
 };
 
 export type LoadClassDataResult = {
@@ -23,13 +27,11 @@ export type LoadClassDataResult = {
  * Returns structured data you can set into Solid signals.
  */
 export async function loadClassData(): Promise<LoadClassDataResult | null> {
-    // 1️⃣ Get auth user
-    const { data: authData, error: authError } = await supabase.auth.getUser();
-    if (authError || !authData?.user) {
-        console.error('No authenticated user:', authError);
+    const user = await getAuthUser();
+
+    if (!user) {
         return null;
     }
-    const user = authData.user;
 
     // 2️⃣ Get user role
     const { data: userRecord, error: userError } = await supabase
@@ -45,13 +47,10 @@ export async function loadClassData(): Promise<LoadClassDataResult | null> {
     const role = userRecord?.role || null;
 
     // 3️⃣ Fetch students
-    const { data: studentData, error: studentError } = await supabase
-        .from('users')
-        .select('*')
-        .eq('role', 'student');
+    const studentData = await getStudents();
 
-    if (studentError) {
-        console.error('Error fetching students:', studentError);
+    if (!studentData) {
+        return null;
     }
 
     // 4️⃣ Fetch classes with teacher names
@@ -59,13 +58,14 @@ export async function loadClassData(): Promise<LoadClassDataResult | null> {
         .from('classes')
         .select(
             `
-      id,
-      name,
-      section,
-      description,
-      teacher_id,
-      users!inner(name, teacher_initials)
-    `
+            id,
+            name,
+            section,
+            description,      
+            hero_url,
+            teacher_id,
+            users!inner(name, teacher_initials)
+            `
         )
         .order('created_at', { ascending: false });
 
@@ -85,9 +85,10 @@ export async function loadClassData(): Promise<LoadClassDataResult | null> {
             name: cls.name,
             section: cls.section,
             description: cls.description,
+            hero_url: cls.hero_url || '',
             teacher_id: cls.teacher_id,
-            teacher_name: cls.users?.name || 'Unknown',
-            teacher_initials: cls.users?.teacher_initials || ''
+            teacher_name: cls.users.name || 'Unknown',
+            teacher_initials: cls.users.teacher_initials || '',
         })) ?? [];
 
     return {

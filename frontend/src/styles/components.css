@@ -1,6 +1,9 @@
 @import 'tailwindcss';
 
 button {
-    @apply text-white text-xl font-semibold px-10 py-3 rounded-lg;
+    @apply text-xl font-semibold px-10 py-3 rounded-lg inline-flex gap-2 align-middle leading-none;
 }
 
+button#compact {
+    @apply text-xl font-semibold p-3 rounded-lg;
+}

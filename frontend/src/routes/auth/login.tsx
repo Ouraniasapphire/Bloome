@@ -12,15 +12,12 @@ export default function Login() {
     };
 
     return (
-        <main class='flex flex-col h-screen w-screen items-center justify-center space-y-8'>
-            <h1 class='text-white text-6xl font-extrabold bg-clip-text '>Bloome</h1>
+        <div class='flex flex-col h-dvh w-dvw items-center justify-center space-y-8'>
+            <h1 class=' text-6xl font-extrabold bg-clip-text '>Bloome</h1>
 
-            <button
-                onClick={signInWithGoogle}
-                class='bg-white !text-black hover:!text-white hover:bg-gradient-to-b hover:from-[#2979FF] hover:to-[#8E24AA] transition duration-150'
-            >
+            <button id='loginButton' onClick={signInWithGoogle}>
                 Sign In With Google
             </button>
-        </main>
+        </div>
     );
 }

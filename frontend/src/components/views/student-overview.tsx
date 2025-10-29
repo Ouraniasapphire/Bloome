@@ -1,5 +1,11 @@
-import CourseView from "~/pages/CourseView";
+import CourseView from '~/pages/CourseView';
+import Nav from '../Nav';
 
 export default function StudentOverview() {
-    return <CourseView />;
+    return (
+        <>
+            <Nav />
+            <CourseView />
+        </>
+    );
 }
