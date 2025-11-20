@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "vinxi dev",
     "server": "vinxi dev --host",
-    "build": "vinxi build --preset static",
+    "build": "vinxi build",
     "build:app": "npm run build && cap sync",
     "build:electron": "npm run build && electron .",
     "start": "vinxi start",
