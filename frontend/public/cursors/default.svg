@@ -1,0 +1,15 @@
+<svg
+    width="16px"
+    height="16px"
+    viewBox="0 0 24 24"
+    version="1.1"
+    xmlns="http://www.w3.org/2000/svg"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xml:space="preserve"
+    xmlns:serif="http://www.serif.com/"
+    style="fill-rule: evenodd; clip-rule: evenodd; stroke-linejoin: round; stroke-miterlimit: 2"
+>
+    <path
+        d="M4.045,1.811c0,-0.304 0.183,-0.577 0.463,-0.693c0.28,-0.116 0.603,-0.052 0.817,0.162l14.41,14.41c0.215,0.215 0.279,0.537 0.163,0.818c-0.116,0.28 -0.39,0.463 -0.693,0.463l-7.82,-0c-0.199,-0 -0.39,0.079 -0.53,0.219l-5.53,5.53c-0.214,0.214 -0.537,0.278 -0.817,0.162c-0.28,-0.116 -0.463,-0.389 -0.463,-0.693l0,-20.378Zm1.875,2.716l0,14.946l3.609,-3.609l0.4,-0.327l0.452,-0.242l0.49,-0.149l0.514,-0.05l5.104,-0l-10.569,-10.569Z"
+    />
+</svg>

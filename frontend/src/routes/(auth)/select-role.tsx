@@ -41,15 +41,11 @@ export default function SelectRole() {
             }
 
             // User exists, check initial_login flag
-            const initialLogin = user.user_metadata?.initial_login;
 
             setAlreadyRegistered(true);
 
-            if (initialLogin) {
-                navigate(`/${existingUser.dynamic_key}/setup`);
-            } else {
-                navigate(`/${existingUser.dynamic_key}/overview`);
-            }
+            navigate(`/redirect`);
+
         } catch (err) {
             console.error('Unexpected error:', err);
         } finally {
@@ -84,9 +80,9 @@ export default function SelectRole() {
             }
 
             setAlreadyRegistered(true);
-            navigate(`/${upsertedUser.dynamic_key}/setup`);
         } finally {
             setLoading(false);
+            navigate(`/redirect`);
         }
     };
 
@@ -101,19 +97,19 @@ export default function SelectRole() {
             {!loading() && !alreadyRegistered() && (
                 <div class='flex flex-col gap-4 w-64'>
                     <button
-                        class='bg-blue-600 text-white px-6 py-3 rounded shadow hover:bg-blue-700'
+                        class='bg-blue-600 text-gray-100 px-6 py-3 rounded shadow hover:bg-blue-700'
                         onClick={() => selectRole('student')}
                     >
                         Student
                     </button>
                     <button
-                        class='bg-green-600 text-white px-6 py-3 rounded shadow hover:bg-green-700'
+                        class='bg-green-600 text-gray-100 px-6 py-3 rounded shadow hover:bg-green-700'
                         onClick={() => selectRole('teacher')}
                     >
                         Teacher
                     </button>
                     <button
-                        class='bg-red-600 text-white px-6 py-3 rounded shadow hover:bg-red-700'
+                        class='bg-red-600 text-gray-100 px-6 py-3 rounded shadow hover:bg-red-700'
                         onClick={() => selectRole('admin')}
                     >
                         Admin

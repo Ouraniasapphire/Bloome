@@ -1,10 +1,10 @@
-import { Router } from '@solidjs/router';
+import { Route, Router } from '@solidjs/router';
 import { FileRoutes } from '@solidjs/start/router';
-import { Suspense } from 'solid-js';
+import { Suspense, createEffect } from 'solid-js';
 import WasmLoader from './lib/WasmLoader';
-import { createEffect } from 'solid-js';
-import './app.css';
 import { ThemeProvider } from '~/context/ThemeContext';
+import { AuthProvider } from './context/AuthContext';
+import './app.css';
 
 export default function App() {
     createEffect(() => {
@@ -12,16 +12,18 @@ export default function App() {
     });
 
     return (
-        <Router
-            root={(props) => (
-                <>
+        <AuthProvider>
+            <Router
+                root={(props) => (
                     <ThemeProvider>
-                        <Suspense>{props.children}</Suspense>
+                        <Suspense>
+                            {props.children}
+                        </Suspense>
                     </ThemeProvider>
-                </>
-            )}
-        >
-            <FileRoutes />
-        </Router>
+                )}
+            >
+                <FileRoutes />
+            </Router>
+        </AuthProvider>
     );
 }

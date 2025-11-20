@@ -3,5 +3,9 @@ import { mount } from "@solidjs/start/client";
 import { StartClient } from "@solidjs/start/client";
 
 mount(() => {
-  return <StartClient />;
+  if (navigator.onLine) {
+    return <StartClient />;
+  } else {
+    return <>Offline</>
+  }
 }, document.getElementById("app")!);

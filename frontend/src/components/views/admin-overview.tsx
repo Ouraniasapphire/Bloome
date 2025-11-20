@@ -1,10 +1,14 @@
 import { Component, For, createSignal, onMount, Show } from 'solid-js';
-import Nav from '../Nav';
-import CourseView from '~/pages/CourseView';
-import StudioPanel from '../StudioPanel';
+import StudioView from '~/components/Studio/StudioView';
+import StudioManager from '~/components/Studio/StudioManager';
 
-export default function AdminPanel() {
+type Props = {
+    sidebar?: any;
+};
+
+export default function AdminOverview(props: Props) {
     const [showStudentView, setShowStudentView] = createSignal(false);
+    const [showSideBar, setShowSideBar] = createSignal(true);
 
     const handleCheckboxChange = () => {
         setShowStudentView(!showStudentView());
@@ -34,44 +38,46 @@ export default function AdminPanel() {
         );
     };
 
-    return (
-        <div class='bg-white dark:bg-gray-800'>
-            <Nav>
-                <div class='gap-2 flex justify-center items-center flex-row leading-none font-bold'>
-                    Show Student View
-                    <label class='flex cursor-pointer select-none items-center '>
-                        <div class='relative '>
-                            {/* Hidden checkbox */}
-                            <input
-                                type='checkbox'
-                                checked={showStudentView()}
-                                onchange={handleCheckboxChange}
-                                class='sr-only'
-                            />
+    const StudentViewToggle = () => {
+        return (
+            <div class='gap-2 flex justify-center items-center flex-row leading-none font-bold'>
+                Show Student View
+                <label class='flex cursor-pointer select-none items-center '>
+                    <div class='relative '>
+                        {/* Hidden checkbox */}
+                        <input
+                            type='checkbox'
+                            checked={showStudentView()}
+                            onchange={handleCheckboxChange}
+                            class='sr-only'
+                        />
 
-                            {/* Track */}
-                            <div
-                                class={`block h-6 w-12 rounded-full transition-colors duration-300 border-2 border-gray-400 
+                        {/* Track */}
+                        <div
+                            class={`block h-6 w-12 rounded-full transition-colors duration-300 border-2 border-gray-200 
         ${
             showStudentView() ? 'bg-blue-600 border-transparent' : 'bg-white'
         } dark:border-transparent`}
-                            ></div>
+                        ></div>
 
-                            {/* Dot */}
-                            <div
-                                class={`absolute top-1 h-4 w-4 rounded-full flex items-center justify-center transition-all duration-300 
+                        {/* Dot */}
+                        <div
+                            class={`absolute top-1 h-4 w-4 rounded-full flex items-center justify-center transition-all duration-300 
         ${showStudentView() ? 'bg-white' : 'bg-gray-400'}`}
-                                style={{ left: showStudentView() ? '1.75rem' : '0.25rem' }}
-                            >
-                                {showStudentView() ? <Visible /> : <Invisible />}
-                            </div>
+                            style={{ left: showStudentView() ? '1.75rem' : '0.25rem' }}
+                        >
+                            {showStudentView() ? <Visible /> : <Invisible />}
                         </div>
-                    </label>
-                </div>
-                Hello
-            </Nav>
+                    </div>
+                </label>
+            </div>
+        );
+    };
 
-            {showStudentView() ? <CourseView /> : <StudioPanel />}
-        </div>
+    return (
+        <>
+            <StudentViewToggle />
+            {showStudentView() ? <StudioView /> : <StudioManager />}
+        </>
     );
 }

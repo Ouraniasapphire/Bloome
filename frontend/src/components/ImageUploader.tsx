@@ -27,23 +27,12 @@ export default function ImageUploader(props: Props) {
     }
 
     return (
-        <div class='flex items-center gap-4 w-full md:w-auto'>
+        <div class='flex items-center w-full justify-center'>
             {/* Button */}
-            <label class='inline-flex items-center bg-gray-600 hover:bg-gray-700 text-white cursor-pointer transition font-semibold px-6 py-3 rounded-lg'>
-                <span class='truncate max-w-xs'>{fileName()}</span>
+            <label class='px-6 py-3 leading-none flex text-xl shadow-xl items-center justify-center w-full bg-gray-600 hover:bg-gray-700 text-gray-100 cursor-pointer transition rounded-full'>
+                <span class='truncate'>{fileName()}</span>
                 <input type='file' accept='image/*' onChange={handleUpload} class='hidden' />
             </label>
-
-            {/* Preview */}
-            {preview() && (
-                <div class='w-24 h-24 rounded-lg overflow-hidden border border-gray-300 shadow-sm flex-shrink-0'>
-                    <img
-                        src={preview()}
-                        alt='Preview'
-                        class='w-full h-full object-cover transition-transform hover:scale-105'
-                    />
-                </div>
-            )}
         </div>
     );
 }

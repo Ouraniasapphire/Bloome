@@ -1,24 +1,13 @@
-import { supabase } from "~/lib/supabaseClient";
-import getAuthUser from "./getAuthUser";
+import { getUserData } from "./getUserData";
 
-export async function getUserRole()  {
 
-        const user = await getAuthUser();
-        if (!user) return;
-
-        const { data: userRecord, error: userError } = await supabase
-                .from('users')
-                .select('role')
-                .eq('id', user.id)
-                .maybeSingle();
+export async function getUserRole(): Promise<string |null> {
     
-            if (userError) {
-                console.error('Error fetching user role:', userError);
-                return;
-            }
+    const userData = await getUserData();
 
-    return {
-        role: userRecord?.role
+    if (!userData) {
+        return null
     }
 
+    return userData?.role || null
 }

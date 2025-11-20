@@ -1,7 +1,9 @@
 @import url('./styles/components.css');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 @import 'tailwindcss';
 @custom-variant dark (&:where(.dark, .dark *));
+
 
 :root {
     --background-rgb: 255, 255, 255;
@@ -14,11 +16,20 @@
 }
 
 body {
+    @apply text-gray-800 fill-gray-800 bg-white dark:text-gray-100 dark:fill-gray-100 dark:bg-gray-800;
     min-height: 100dvh;
     min-width: 100dvw;
-    background: rgb(var(--background-rgb));
-    color: rgb(var(--foreground-rgb));
+    font-family: 'Inter', sans-serif;
 }
+
+input {
+    @apply text-gray-800 bg-white dark:text-gray-100 dark:bg-gray-900
+}
+
+button, a {
+    @apply cursor-pointer flex justify-center hover:opacity-95 
+}
+
 
 .navbar {
     align-items: center;
@@ -135,7 +146,46 @@ body {
     }
 }
 
-
 .theme-icon path {
     transition: d 0.6s ease-in-out, fill 0.3s ease;
+}
+
+#delete-button {
+    opacity: 0;
+    
+
+}
+
+#studio-card:hover #delete-button {
+    display: block;
+    z-index: 1000;
+    animation: fadeIn .25s ease 0s 1 normal forwards;
+}
+
+#studio-card:not(:hover) #delete-button {
+    animation: fadeOut 0.25s ease forwards;
+}
+
+@keyframes fadeIn {
+	0% {
+		opacity: 0;
+		transform: scale(0.6);
+	}
+
+	100% {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
+
+@keyframes fadeOut {
+	0% {
+		opacity: 1;
+		transform: scale(1);
+	}
+
+	100% {
+		opacity: 0;
+		transform: scale(0.6);
+	}
 }

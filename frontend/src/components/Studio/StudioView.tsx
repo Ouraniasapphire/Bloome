@@ -1,8 +1,9 @@
 import { Component, createSignal, onMount, For, Show } from 'solid-js';
 import { loadClassData } from '~/utils/loadClassData';
 import type { ClassData } from '~/utils/loadClassData';
-import CourseCard from '~/components/CourseCard';
-import { supabase } from '~/lib/supabaseClient';
+import CourseCard from '~/components/Studio/StudioCard';
+import getAuthUser from '~/utils/getAuthUser';
+import fetchMemberships from '~/utils/fetchMemberships';
 
 const CourseView: Component = () => {
     const [classes, setClasses] = createSignal<ClassData[]>([]);
@@ -10,18 +11,16 @@ const CourseView: Component = () => {
     const [authUserId, setAuthUserId] = createSignal<string | null>(null);
 
     onMount(async () => {
-        // ✅ Get the current authenticated user
-        const { data: authData, error } = await supabase.auth.getUser();
-        if (error || !authData?.user) {
-            console.error('No authenticated user:', error);
-            setLoading(false);
+        // Get the current authenticated user
+        const authData = await getAuthUser();
+        if (!authData) {
             return;
         }
 
-        const userId = authData.user.id;
+        const userId = authData?.id;
         setAuthUserId(userId);
 
-        // ✅ Load all classes
+        // Load all classes
         const result = await loadClassData();
         if (!result) {
             setLoading(false);
@@ -30,15 +29,8 @@ const CourseView: Component = () => {
 
         let userClasses = result.classes;
 
-        // ✅ Fetch class IDs where the user is a student
-        const { data: memberships, error: membershipError } = await supabase
-            .from('memberships')
-            .select('class_id')
-            .eq('user_id', userId);
-
-        if (membershipError) {
-            console.error('Error fetching memberships:', membershipError);
-        }
+        // Fetch memberships based on the users
+        const memberships = await fetchMemberships({ id: userId });
 
         const studentClassIds = memberships?.map((m) => m.class_id) || [];
 
@@ -52,7 +44,7 @@ const CourseView: Component = () => {
     });
 
     return (
-        <main class='min-h-screen p-8 text-white'>
+        <main class='min-h-screen w-full p-8 text-gray-800 dark:text-gray-100'>
             <h1 class='text-3xl font-bold mb-6'>My Courses</h1>
 
             <Show when={!loading()} fallback={<p class='text-gray-400'>Loading your courses...</p>}>
@@ -63,12 +55,11 @@ const CourseView: Component = () => {
                                 id={cls.id}
                                 name={cls.name}
                                 description={cls.description}
-                                hero_url={
-                                    cls.hero_url
-                                }
+                                hero_url={cls.hero_url}
                                 section={cls.section}
                                 teacher_id={cls.teacher_id}
                                 teacher_name={cls.teacher_name}
+                                room={cls.room}
                                 teacher_initials={cls.teacher_initials}
                             />
                         )}

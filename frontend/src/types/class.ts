@@ -9,5 +9,6 @@ export type Class = {
     teacher_id?: string;
     teacher_name?: string;
     teacher_initials?: string;
+    room?: string;
     enrolled_students?: User[];
 };
