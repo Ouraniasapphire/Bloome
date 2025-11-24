@@ -1,7 +1,6 @@
 import { createContext, useContext, createSignal, onMount, JSX } from 'solid-js';
 import type { User } from '@supabase/supabase-js';
 import { supabase } from '~/lib/supabaseClient';
-import AppLayout from '~/routes/[userId]/layout';
 
 interface AuthContextType {
     user: () => User | null;
@@ -18,7 +17,6 @@ export function AuthProvider(props: { children: JSX.Element }) {
     const [role, setRole] = createSignal<string | null>(null);
     const [loading, setLoading] = createSignal(true);
 
-    // Persist user + role
     const persistUser = (u: User | null, r?: string | null) => {
         setUser(u);
         setRole(r ?? u?.user_metadata?.role ?? null);
@@ -32,7 +30,6 @@ export function AuthProvider(props: { children: JSX.Element }) {
     };
 
     const fetchUserFromDB = async (u: User) => {
-        // Try to fetch the user from the 'users' table
         const { data: existingUser, error } = await supabase
             .from('users')
             .select('*')
@@ -40,17 +37,10 @@ export function AuthProvider(props: { children: JSX.Element }) {
             .maybeSingle();
 
         if (error) throw error;
-
-        if (!existingUser) {
-            // First-time login, ask user to select a role
-            return null;
-        }
-
-        return existingUser;
+        return existingUser ?? null;
     };
 
     onMount(async () => {
-        // Restore from localStorage
         const storedUser = localStorage.getItem('user');
         const storedRole = localStorage.getItem('role');
 
@@ -73,7 +63,6 @@ export function AuthProvider(props: { children: JSX.Element }) {
             setLoading(false);
         }
 
-        // Listen for auth state changes
         supabase.auth.onAuthStateChange(async (_event, session) => {
             if (session?.user) {
                 const dbUser = await fetchUserFromDB(session.user);
@@ -86,11 +75,10 @@ export function AuthProvider(props: { children: JSX.Element }) {
 
     const loginWithGoogle = async () => {
         const redirectTo = `${window.location.origin}/redirect`;
-        const { error } = await supabase.auth.signInWithOAuth({
+        await supabase.auth.signInWithOAuth({
             provider: 'google',
             options: { redirectTo },
         });
-        if (error) console.error('Google login error:', error);
     };
 
     const logout = async () => {
@@ -100,8 +88,7 @@ export function AuthProvider(props: { children: JSX.Element }) {
 
     return (
         <AuthContext.Provider value={{ user, role, loading, loginWithGoogle, logout }}>
-            <AppLayout > {props.children}</AppLayout>
-            
+            {props.children}
         </AuthContext.Provider>
     );
 }
