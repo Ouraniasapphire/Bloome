@@ -1,14 +1,30 @@
-import { useAuth } from '~/context/AuthContext';
+// context/AuthContext.tsx (or wherever your context is)
+import { createContext, useContext } from 'solid-js';
+import { supabase } from '~/lib/supabaseClient';
 
-export default function Login() {
-    const { loginWithGoogle } = useAuth();
+type AuthContextType = {
+    loginWithGoogle: () => Promise<void>;
+};
+
+const AuthContext = createContext<AuthContextType>();
+
+export const AuthProvider = (props: any) => {
+    const loginWithGoogle = async () => {
+        try {
+            await supabase.auth.signInWithOAuth({
+                provider: 'google',
+                options: {
+                    redirectTo: import.meta.env.VITE_SUPABASE_REDIRECT_URL, // e.g., https://www.greathall.net/redirect
+                },
+            });
+        } catch (error) {
+            console.error('Error logging in with Google:', error);
+        }
+    };
 
     return (
-        <div class='flex flex-col items-center justify-center h-screen gap-8'>
-            <h1 class='text-6xl font-bold text-gray-800 dark:text-white'>Bloome</h1>
-            <button onClick={loginWithGoogle} class='py-4 px-8 bg-blue-600 text-white rounded'>
-                Sign In With Google
-            </button>
-        </div>
+        <AuthContext.Provider value={{ loginWithGoogle }}>{props.children}</AuthContext.Provider>
     );
-}
+};
+
+export const useAuth = () => useContext(AuthContext)!;

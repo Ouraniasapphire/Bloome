@@ -3,13 +3,15 @@ import { Component, createSignal, onMount, createEffect } from 'solid-js';
 import { supabase } from '~/lib/supabaseClient';
 import { Class } from '~/types/class';
 import getAuthUser from '~/utils/getAuthUser';
+import ProfileContext from '~/context/ProfileContext';
 
-const CourseCard: Component<Class> = (props) => {
+type CourseCardProps = Class & {colorID: number};
+
+const CourseCard: Component<CourseCardProps> = (props) => {
     const [userID, setUserID] = createSignal<string | null>(null);
     const [enrolledClassIDs, setEnrolledClassIDs] = createSignal<string[]>([]);
     const navigate = useNavigate();
 
-    // 1️⃣ Fetch user and enrolled classes on mount
     onMount(async () => {
         try {
             const authUser = await getAuthUser();
@@ -17,7 +19,6 @@ const CourseCard: Component<Class> = (props) => {
                 navigate('/');
                 return;
             }
-
             const user = authUser.user_metadata;
             setUserID(user.id);
 
@@ -25,12 +26,10 @@ const CourseCard: Component<Class> = (props) => {
                 .from('memberships')
                 .select('class_id')
                 .eq('user_id', user.id);
-
             if (enrollError) {
                 console.error('Failed to fetch enrolled classes', enrollError);
                 return;
             }
-
             setEnrolledClassIDs(enrolledClasses?.map((c) => c.class_id) ?? []);
         } catch (err) {
             console.error('Unexpected error fetching user or memberships', err);
@@ -71,9 +70,12 @@ const CourseCard: Component<Class> = (props) => {
                         <hr class='border-gray-700 mb-4' />
 
                         <div class='flex items-center gap-3 mb-3'>
-                            <div class='flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-yellow-300 to-pink-300 font-bold text-gray-900'>
-                                {props.teacher_initials || '??'}
-                            </div>
+                            
+                                <ProfileContext colorID={props.colorID || 1}>
+                                    {props.teacher_initials || '??'}
+                                </ProfileContext>
+                            
+
                             <p class='font-medium text-gray-800 dark:text-gray-100'>
                                 {props.teacher_name || 'Unknown'}
                             </p>

@@ -1,3 +1,5 @@
+import ProfileContext from "~/context/ProfileContext";
+
 type Props = {
     heroURL: any;
     name: any;
@@ -6,6 +8,7 @@ type Props = {
     room: any;
     section: any;
     teacher_initials: any;
+    colorID: number;
 };
 
 const DummyStudioCard = (props: Props) => {
@@ -35,9 +38,9 @@ const DummyStudioCard = (props: Props) => {
                         <hr class='border-gray-700 mb-4' />
 
                         <div class='flex items-center gap-3 mb-3'>
-                            <div class='flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-yellow-300 to-pink-300 font-bold text-gray-900'>
-                                {props.teacher_initials}
-                            </div>
+                            <ProfileContext colorID={props.colorID || 1}>
+                                {props.teacher_initials || '??'}
+                            </ProfileContext>
                             <p class='font-medium text-gray-800 dark:text-gray-100'>
                                 {props.teacher_name || 'Name'}
                             </p>

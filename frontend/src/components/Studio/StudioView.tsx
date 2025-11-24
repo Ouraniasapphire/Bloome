@@ -4,6 +4,9 @@ import type { ClassData } from '~/utils/loadClassData';
 import CourseCard from '~/components/Studio/StudioCard';
 import getAuthUser from '~/utils/getAuthUser';
 import fetchMemberships from '~/utils/fetchMemberships';
+import { fetchUserSettings } from '~/utils/fetchUserSettings';
+
+type ClassWithColor = ClassData & { colorID: number };
 
 const CourseView: Component = () => {
     const [classes, setClasses] = createSignal<ClassData[]>([]);
@@ -39,6 +42,23 @@ const CourseView: Component = () => {
             (cls) => cls.teacher_id === userId || studentClassIds.includes(cls.id)
         );
 
+        const fetchSettings = new fetchUserSettings();
+
+        // Await the async call
+        const allSettings = (await fetchSettings.all()) || []; // fallback to empty array
+
+        // Find the settings for the current user
+        const currentUserSettings = allSettings.find((s: any) => s.id === userId);
+
+        // Get the profile color safely
+        const profileColor = currentUserSettings?.profile_color ?? '1';
+
+        // Map profileColor to your userClasses
+        userClasses = userClasses.map((cls) => ({
+            ...cls,
+            colorID: Number(profileColor), // make sure it's a number if needed
+        }));
+
         setClasses(userClasses);
         setLoading(false);
     });
@@ -61,6 +81,7 @@ const CourseView: Component = () => {
                                 teacher_name={cls.teacher_name}
                                 room={cls.room}
                                 teacher_initials={cls.teacher_initials}
+                                colorID={1}
                             />
                         )}
                     </For>

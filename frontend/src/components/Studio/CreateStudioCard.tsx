@@ -5,7 +5,7 @@ import type { Class } from '~types/class';
 import ImageUploader from '../ImageUploader';
 import DummyStudioCard from './DummyStudioCard';
 import fetchClasses from '~/utils/fetchClasses';
-import { loadClassData } from '~/utils/loadClassData';
+import { createClass } from '~/lib/CreateClass';
 import { getUserData } from '~/utils/getUserData';
 import { getUserRole } from '~/utils/getUserRole';
 
@@ -50,7 +50,7 @@ const CreateStudioCard = (props: CreateStudioCardProps) => {
         setForm((prev) => ({ ...prev, [field]: value }));
     };
 
-    const createClass = async () => {
+    const ExtendCreateClass = async () => {
         const user = authUser();
         if (!user) return;
 
@@ -58,40 +58,17 @@ const CreateStudioCard = (props: CreateStudioCardProps) => {
         setError(null);
 
         try {
-            // 1️⃣ Create the class record
             const payload: any = {
                 name: form().name,
                 section: form().section,
                 description: form().description,
                 teacher_id: user.id,
                 room: form().room,
-                created_at: new Date().toISOString(),
             };
-
             if (form().heroUrl) payload.hero_url = form().heroUrl;
 
-            const { data: newClass, error: classError } = await supabase
-                .from('classes')
-                .insert(payload)
-                .select()
-                .single();
+            const newClass = await createClass(payload);
 
-            if (classError) throw classError;
-
-            // 2️⃣ Upsert teacher into memberships table as a "teacher" role
-            const { error: membershipError } = await supabase.from('memberships').upsert(
-                {
-                    class_id: newClass.id,
-                    user_id: user.id,
-                    role: 'teacher',
-                    joined_at: new Date().toISOString(),
-                },
-                { onConflict: 'class_id,user_id' } // ensures idempotency
-            );
-
-            if (membershipError) throw membershipError;
-
-            // 3️⃣ Add the new class to the local state
             setClasses((prev) => [
                 ...prev,
                 {
@@ -158,7 +135,7 @@ const CreateStudioCard = (props: CreateStudioCardProps) => {
                         </div>
 
                         <button
-                            onClick={createClass}
+                            onClick={ExtendCreateClass}
                             disabled={loading()}
                             class='w-1/2 py-3 px-6 leading-none bg-blue-500 text-white rounded-lg shadow-xl hover:bg-blue-600 transition disabled:opacity-50'
                         >
@@ -175,6 +152,7 @@ const CreateStudioCard = (props: CreateStudioCardProps) => {
                             section={form().section}
                             room={form().room}
                             teacher_initials={teacherInitials()}
+                            colorID={1}
                         />
                     </div>
 

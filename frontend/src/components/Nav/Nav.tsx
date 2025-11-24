@@ -179,7 +179,7 @@ const Nav = (Props: Props) => {
 
                 <Divider />
 
-                <Button path={''}>Dashboard</Button>
+                <Button path={`/${dynamicKey()}/dashboard`}>Dashboard</Button>
 
                 {/* Admin || Teacher */}
 
