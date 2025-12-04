@@ -1,0 +1,78 @@
+@import 'tailwindcss';
+
+* {
+    transition: all 0.15s ease-in-out;
+}
+
+:root {
+    /* Light theming */
+    --surface-0: #ffffff;
+    --surface-100: #f0f0f0;
+    --surface-200: #e1e1e1;
+    --surface-300: #d3d3d3;
+    --surface-400: #c5c5c5;
+    --surface-500: #b6b6b6;
+    --surface-text: #1a1a1a;
+
+    /* Other */
+    --l-to-r-branding: ;
+}
+
+[data-theme='dark'] {
+    --surface-0: #121212;
+    --surface-100: #282828;
+    --surface-200: #3f3f3f;
+    --surface-300: #575757;
+    --surface-400: #717171;
+    --surface-500: #8b8b8b;
+    --surface-text: #fff;
+}
+
+@theme {
+    --font-sans:
+        'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+html,
+body {
+    @apply bg-(--surface-0) text-(--surface-text);
+
+    @media (prefers-color-scheme: dark) {
+        color-scheme: dark;
+    }
+}
+
+#loader {
+    animation: loading 2s ease 0s infinite normal forwards;
+}
+
+@keyframes loading {
+    0% {
+        transform: scale3d(1, 1, 1);
+    }
+
+    30% {
+        transform: scale3d(1.25, 0.75, 1);
+    }
+
+    40% {
+        transform: scale3d(0.75, 1.25, 1);
+    }
+
+    50% {
+        transform: scale3d(1.15, 0.85, 1);
+    }
+
+    65% {
+        transform: scale3d(0.95, 1.05, 1);
+    }
+
+    75% {
+        transform: scale3d(1.05, 0.95, 1);
+    }
+
+    100% {
+        transform: scale3d(1, 1, 1);
+    }
+}
