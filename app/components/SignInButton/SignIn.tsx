@@ -36,7 +36,7 @@ const SignIn = (props: Props) => {
         <button
             onClick={props.action}
             className='mx-4 my-8 px-8 py-4 text-(--surface-text) bg-(--surface-0) rounded-2xl text-2xl 
-                       hover:cursor-pointer  font-bold flex flex-row items-center gap-4 border-2 border-(--surface-200) hover:border- hover:box-content'
+                       hover:cursor-pointer  font-bold flex flex-row items-center gap-4 border-2 border-(--surface-200) hover:border-(--surface-300) hover:box-content'
         >
             <div className='mr-auto'>
                 <GoogleLogo />

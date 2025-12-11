@@ -1,39 +1,41 @@
 // routes/redirect.tsx
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
-import { supabase } from "../clients/supabaseClient";
-import type { Session } from "@supabase/supabase-js";
-import { getDynamicKey } from "~/utils/getDynamicKey";
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router';
+import { supabase } from '../clients/supabaseClient';
+import Loading from '~/components/loading/Loading';
+import { GetUserData } from '~/utils/getUserData';
+import useSession from '~/hooks/useSession';
 
 export default function Redirect() {
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+    const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
+    const session = useSession();
 
-  useEffect(() => {
-    async function checkSession() {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+    useEffect(() => {
+        async function checkSession() {
+            const {data: {session}} = await supabase.auth.getSession()
 
-      const authUserID = session?.user.id // Get ID from supabase user session
-      if (!authUserID) {
-        return
-      }
+            const authUserID = session?.user.id; // Get ID from supabase user session
+            if (!authUserID) {
+                return;
+            }
 
-      const urlParam = await getDynamicKey({userID: authUserID}) // Feed ID to get dynamic key
+            const getUserData = new GetUserData({ userID: authUserID });
+            const urlParam = await getUserData.getDynamicKey();
 
-      if (session) {
-        navigate(`/${urlParam}/dashboard`, { replace: true });
-      } else {
-        navigate("/", { replace: true });
-      }
+            if (session) {
+                navigate(`/${urlParam}/dashboard`, { replace: true });
+                setLoading(false);
+            } else {
+                navigate('/', { replace: true });
+                setLoading(false);
+            }
 
-      setLoading(false);
-    }
+            setLoading(false);
+        }
 
-    checkSession();
-  }, [navigate]);
+        checkSession();
+    }, [navigate]);
 
-  // Optional: show a loading message while redirecting
-  return loading ? <div id="loader">Redirecting...</div> : null;
+    return loading ? <Loading /> : null;
 }

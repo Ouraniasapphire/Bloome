@@ -17,6 +17,7 @@ import { supabase } from './clients/supabaseClient';
 
 import Navbar from './components/Navbar/Navbar';
 import { ThemeProvider } from './context/ThemeContext';
+import useSession from './hooks/useSession';
 
 export const links: Route.LinksFunction = () => [
     { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -50,43 +51,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-    const [session, setSession] = useState<Session | null>(null);
-    const navigate = useNavigate();
+    const [session] = useSession();
 
-    useEffect(() => {
-        // Check if user is already logged in
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            setSession(session);
-        });
-
-        const {
-            data: { subscription },
-        } = supabase.auth.onAuthStateChange((_event, session) => {
-            setSession(session);
-        });
-
-        return () => subscription.unsubscribe();
-    });
-
-    const signOut = async () => {
-        const { error } = await supabase.auth.signOut();
-        if (!error) {
-            setSession(null);
-            navigate('/'); // optional: redirect to home after sign out
-        }
-    };
-                  
     if (session) {
         return (
+            
             <ThemeProvider>
-                <Navbar>
-                    <button
-                        onClick={signOut}
-                        className='px-4 py-2 bg-linear-to-t from-purple-700 to-indigo-600 text-white rounded-lg hover:cursor-pointer w-full mb-4 mr-4 mt-2 ml-4'
-                    >
-                        Sign out
-                    </button>
-                </Navbar>
+                <Navbar />
                 <Outlet />
             </ThemeProvider>
         );

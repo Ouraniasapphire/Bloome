@@ -14,7 +14,7 @@ export default function Home() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       if (session) {
-        navigate("/dashboard"); // redirect logged-in users to dashboard
+        navigate(`${window.location.origin}/redirect`); // redirect logged-in users to dashboard
       }
     });
 
@@ -24,7 +24,7 @@ export default function Home() {
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       if (session) {
-        navigate("/dashboard");
+        navigate(`${window.location.origin}/redirect`);
       }
     });
 

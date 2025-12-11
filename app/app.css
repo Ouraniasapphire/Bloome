@@ -4,6 +4,10 @@
     transition: all 0.15s ease-in-out;
 }
 
+button {
+    cursor: pointer;
+}
+
 :root {
     /* Light theming */
     --surface-0: #ffffff;
@@ -13,9 +17,6 @@
     --surface-400: #c5c5c5;
     --surface-500: #b6b6b6;
     --surface-text: #1a1a1a;
-
-    /* Other */
-    --l-to-r-branding: ;
 }
 
 [data-theme='dark'] {
@@ -36,15 +37,27 @@
 
 html,
 body {
-    @apply bg-(--surface-0) text-(--surface-text);
+    @apply bg-(--surface-0) text-(--surface-text) h-[calc(100vh-48px)]; /* Offset height as: 100vh - navbar height */
 
     @media (prefers-color-scheme: dark) {
         color-scheme: dark;
     }
 }
 
+#navbar-links > * {
+    @apply pr-4 pl-4 font-bold;
+}
+
+#settings-right > * {
+    @apply p-4;
+}
+
+#settings-right h1 {
+    @apply font-bold;
+}
+
 #loader {
-    animation: loading 2s ease 0s infinite normal forwards;
+    animation: loading 1s ease 0s infinite normal forwards;
 }
 
 @keyframes loading {
