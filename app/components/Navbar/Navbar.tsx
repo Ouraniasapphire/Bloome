@@ -43,7 +43,7 @@ const Navbar = () => {
         return (
             <button
                 onClick={signOut}
-                className='px-4 py-2 bg-linear-to-t from-purple-700 to-indigo-600 text-white rounded-lg hover:cursor-pointer w-full mb-4 mr-4 mt-2 ml-4'
+                className='px-4 py-2 bg-linear-to-t from-purple-700 to-indigo-600 text-white rounded-lg! border-none! hover:cursor-pointer w-full mb-4 mr-4 mt-2 ml-4'
             >
                 Sign out
             </button>
@@ -56,7 +56,7 @@ const Navbar = () => {
                 onClick={() => {
                     redirect('/settings');
                 }}
-                className='w-12 h-12 bg-(--surface-0) hover:cursor-pointer'
+                className='w-12 h-12 bg-(--surface-0) border-0! p-0! hover:cursor-pointer'
             >
                 <svg
                     xmlns='http://www.w3.org/2000/svg'

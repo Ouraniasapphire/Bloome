@@ -68,4 +68,18 @@ export class GetUserData {
 
         return data.name;
     }
+
+    async getUserInitials() {
+        const {data, error} = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', this.userID)
+        .single()
+
+        if (error) {
+            throw new Error(`No data found for user id ${this.userID}, ${error}`);
+        }
+
+        return data.initials
+    }
 }

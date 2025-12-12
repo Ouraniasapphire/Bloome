@@ -44,8 +44,24 @@ body {
     }
 }
 
+/* Generic Styles */
+
+input {
+    @apply  border-b-2 p-2 border-(--surface-200) focus:outline-none focus:border-blue-500;
+}
+
+select {
+    @apply border-b-2 border-b-(--surface-200) p-2;
+}
+
+button {
+    @apply border-2 border-(--surface-200) rounded-sm py-2 px-4
+}
+
+/* Custom Styles */
+
 #navbar-links > * {
-    @apply pr-4 pl-4 font-bold;
+    @apply pr-4 pl-4 font-bold border-0;
 }
 
 #settings-right > * {
