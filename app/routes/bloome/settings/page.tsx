@@ -73,8 +73,8 @@ const Settings = () => {
         e.preventDefault();
 
         const updatePayload: { name?: string; color?: string; initials?: string } = {};
-
-        if (changedName && changedName !== settings[0]) updatePayload.name = changedName;
+        // if ( changedName && changedName !== settings[0]) updatePayload.name = changedName;
+        if (changedName !== settings[0]) updatePayload.name = changedName;
         if (changedInitials && changedInitials !== currentInitials)
             updatePayload.initials = changedInitials;
         if (changedColor && changedColor !== currentColor) updatePayload.color = changedColor;
@@ -105,7 +105,8 @@ const Settings = () => {
                         key={currentColor}
                         overrides={'!h-20 !w-20 !text-4xl'}
                     />
-                    <h1 className='font-bold text-4xl'>{preferredName}</h1>
+                    {changedName && <h1 className='font-bold text-4xl'>{preferredName}</h1>}
+                    
                 </div>
 
                 <div></div>
