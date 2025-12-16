@@ -3,7 +3,6 @@ import { supabase } from '~/clients/supabaseClient';
 export class GetUserData {
     userID: string;
 
-
     // Constructor for class
     constructor({ userID }: { userID: string }) {
         this.userID = userID;
@@ -36,7 +35,7 @@ export class GetUserData {
             throw new Error(`No user settings found for id ${this.userID}, ${error}`);
         }
 
-        return [user_settings.preferred_name, user_settings.profile_color];
+        return [user_settings.preferred_name, user_settings.profile_color, user_settings.initials];
     }
 
     // Get user role
@@ -56,30 +55,27 @@ export class GetUserData {
 
     // Get users name
     async getUserName() {
-        const { data, error } = await supabase
+        // Fetch from users table
+        const { data: user, error: userError } = await supabase
             .from('users')
             .select('*')
             .eq('id', this.userID)
             .single();
 
-        if (error) {
-            throw new Error(`No data found for user id ${this.userID}, ${error}`);
+        if (userError || !user) {
+            throw new Error(`No data found for user id ${this.userID}, ${userError}`);
         }
 
-        return data.name;
-    }
+        // Fetch from user_settings table
+        const { data: settings, error: settingsError } = await supabase
+            .from('user_settings')
+            .select('preferred_name')
+            .eq('id', this.userID)
+            .single();
 
-    async getUserInitials() {
-        const {data, error} = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', this.userID)
-        .single()
+        // Return preferred_name if it exists, otherwise fallback to empty string
+        const preferredName = settingsError || !settings ? '' : settings.preferred_name;
 
-        if (error) {
-            throw new Error(`No data found for user id ${this.userID}, ${error}`);
-        }
-
-        return data.initials
+        return [user.name, preferredName];
     }
 }

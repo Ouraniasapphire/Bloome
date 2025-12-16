@@ -8,11 +8,14 @@ const Settings = () => {
     const [session] = useSession();
     const [settings, setSettings] = useState<string[]>([]);
     const [userID, setUserID] = useState('');
-    const [userInitials, setUserInitials] = useState('');
 
     const [changedName, setChangedName] = useState('');
+
     const [changedColor, setChangedColor] = useState('');
     const [currentColor, setCurrentColor] = useState('');
+
+    const [changedInitials, setChangedInitials] = useState('');
+    const [currentInitials, setCurrentInitials] = useState('');
 
     useEffect(() => {
         async function getUserSettings() {
@@ -26,13 +29,14 @@ const Settings = () => {
                 const userSettings = await userData.getUserSettings();
                 setSettings(userSettings);
 
-                const initials = await userData.getUserInitials();
-                setUserInitials(initials || '');
-
-                // initialize badge color
-                setCurrentColor(userSettings[1] || '');
+                // initialize
                 setChangedName(userSettings[0] || '');
+
+                setCurrentColor(userSettings[1] || '');
                 setChangedColor(userSettings[1] || '');
+
+                setCurrentInitials(userSettings[2] || '');
+                setChangedInitials(userSettings[2] || '');
             } catch (error) {
                 console.error(error);
                 setSettings([]);
@@ -48,23 +52,31 @@ const Settings = () => {
 
     const preferredName = settings[0];
 
-    async function updateSettings(props: { name?: string; color?: string }) {
+    // Update supabase table
+    async function updateSettings(props: { name?: string; color?: string; initials?: string }) {
         try {
             await supabase
                 .from('user_settings')
-                .update({ preferred_name: props.name, profile_color: props.color })
+                .update({
+                    preferred_name: props.name,
+                    profile_color: props.color,
+                    initials: props.initials,
+                })
                 .eq('id', userID);
         } catch (error) {
             console.error('Error updating settings:', error);
         }
     }
 
+    // Collect all changes and form the payload
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        const updatePayload: { name?: string; color?: string } = {};
+        const updatePayload: { name?: string; color?: string; initials?: string } = {};
 
-        if (changedName && changedName !== preferredName) updatePayload.name = changedName;
+        if (changedName && changedName !== settings[0]) updatePayload.name = changedName;
+        if (changedInitials && changedInitials !== currentInitials)
+            updatePayload.initials = changedInitials;
         if (changedColor && changedColor !== currentColor) updatePayload.color = changedColor;
 
         if (Object.keys(updatePayload).length === 0) return;
@@ -72,36 +84,51 @@ const Settings = () => {
         await updateSettings(updatePayload);
 
         // Update state immediately for UI
-        if (updatePayload.name) setSettings([updatePayload.name, settings[1]]);
-        if (updatePayload.color) {
-            setSettings([updatePayload.name ?? settings[0], updatePayload.color]);
-            setCurrentColor(updatePayload.color); // force badge to reload
-        }
+        setSettings((prev) => [
+            updatePayload.name ?? prev[0],
+            updatePayload.color ?? prev[1],
+            updatePayload.initials ?? prev[2],
+        ]);
+
+        if (updatePayload.color) setCurrentColor(updatePayload.color);
+        if (updatePayload.initials) setCurrentInitials(updatePayload.initials);
     };
 
     return (
         <div className='flex flex-row h-full box-border'>
-            <div className='box-border p-4 w-1/2'>hello world</div>
+            <div className='box-border p-4 w-1/2 h-full leading-none flex items-center justify-center'>
+                <div className='w-fit h-fit flex items-center justify-center space-x-8  bg-(--surface-0) shadow-md p-4 border-2 border-(--surface-100) rounded-full'>
+                    <ProfileBadge
+                        id={userID}
+                        initials={currentInitials}
+                        colorID={currentColor}
+                        key={currentColor}
+                        overrides={'!h-20 !w-20 !text-4xl'}
+                    />
+                    <h1 className='font-bold text-4xl'>{preferredName}</h1>
+                </div>
+
+                <div></div>
+            </div>
             <div
                 id='settings-right'
                 className='box-border p-4 w-1/2 border-l-2 border-(--surface-100) shadow-md'
             >
-                <div className='w-full h-fit flex items-center justify-center space-x-1 py-4' >
-                    <h1>{preferredName}</h1>
-                    <ProfileBadge
-                        id={userID}
-                        initials={userInitials}
-                        colorID={currentColor}
-                        key={currentColor}
-                    />
-                </div>
-
-                <hr />
-
                 <span className='flex items-center place-content-between'>
                     <h1>Preferred Name</h1>
                     <input value={changedName} onChange={(e) => setChangedName(e.target.value)} />
                 </span>
+
+                <span className='flex items-center place-content-between'>
+                    <h1>Initials</h1>
+                    <input
+                        value={changedInitials}
+                        onChange={(e) => setChangedInitials(e.target.value)}
+                        maxLength={2}
+                        pattern='[a-zA-Z]+'
+                    />
+                </span>
+
                 <span className='flex items-center place-content-between'>
                     <h1>Profile Color</h1>
                     <select
@@ -116,9 +143,9 @@ const Settings = () => {
                     </select>
                 </span>
 
-                <hr />
+                <div className='border-t border-gray-200 my-4' />
 
-                <button className="px-8! py-2!" onClick={handleSubmit}>
+                <button className='px-8! py-2!' onClick={handleSubmit}>
                     Save
                 </button>
             </div>

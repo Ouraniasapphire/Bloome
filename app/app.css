@@ -17,16 +17,18 @@ button {
     --surface-400: #c5c5c5;
     --surface-500: #b6b6b6;
     --surface-text: #1a1a1a;
+    --card-accent: #ffffff00;
 }
 
 [data-theme='dark'] {
-    --surface-0: #121212;
-    --surface-100: #282828;
-    --surface-200: #3f3f3f;
-    --surface-300: #575757;
-    --surface-400: #717171;
-    --surface-500: #8b8b8b;
+    --surface-0: #1a1a1a;
+    --surface-100: #2f2f2f;
+    --surface-200: #454545;
+    --surface-300: #5d5d5d;
+    --surface-400: #767676;
+    --surface-500: #909090;
     --surface-text: #fff;
+    --card-accent: var(--surface-100);
 }
 
 @theme {

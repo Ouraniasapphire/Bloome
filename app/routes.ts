@@ -18,12 +18,14 @@ export default [
     },
     {
         path: ':userid/studio-manager',
-        file: 'routes/bloome/studioManager/page.tsx',
+        file: 'routes/bloome/admin/studioManager/page.tsx',
     },
 
     // Forge routes
+    /*
     {
         path: ':userid/:classid/forge/',
         file: 'routes/forge/' // Update later on
     },
+    */
 ] satisfies RouteConfig;
