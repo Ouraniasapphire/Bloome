@@ -5,19 +5,15 @@ import {
     Outlet,
     Scripts,
     ScrollRestoration,
-    useNavigate,
 } from 'react-router';
 
 import type { Route } from './+types/root';
 import './app.css';
 
-import { useState, useEffect } from 'react';
-import type { Session } from '@supabase/supabase-js';
-import { supabase } from './clients/supabaseClient';
 
 import Navbar from './components/Navbar/Navbar';
 import { ThemeProvider } from './context/ThemeContext';
-import useSession from './hooks/useSession';
+import useAuth from './hooks/useAuth';
 
 export const links: Route.LinksFunction = () => [
     { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -51,9 +47,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-    const [session] = useSession();
+    const { user, loading } = useAuth();
 
-    if (session) {
+    if (loading) return <p>Loading...</p>;
+
+    if (user) {
         return (
             
             <ThemeProvider>

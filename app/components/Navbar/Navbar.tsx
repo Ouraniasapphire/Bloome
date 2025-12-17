@@ -2,65 +2,63 @@ import { useEffect, useState } from 'react';
 import Icon from './Icon';
 import Menu from './Menu';
 import ThemeToggle from '../ThemeToggle/ThemeToggle';
-import useSession from '~/hooks/useSession';
-import { supabase } from '~/clients/supabaseClient';
 import { useNavigate } from 'react-router';
 import useRedirect from '~/hooks/useRedirect';
-import { GetUserData } from '~/utils/getUserData';
 import ProfileBadge from '../ProfileBadge/ProfileBage';
+import useAuth from '~/hooks/useAuth';
+
+import { doc, getDoc } from 'firebase/firestore';
+import { auth, db } from '~/clients/firebaseClient';
+import { signOut } from 'firebase/auth';
 
 const Navbar = () => {
     const [showMenu, setShowMenu] = useState(false);
-    const [session, setSession] = useSession();
-    const [userRole, setUserRole] = useState();
-    const [userID, setUserID] = useState('');
+    const [userRole, setUserRole] = useState<string | null>(null);
 
+    const { user } = useAuth();
     const navigate = useNavigate();
     const redirect = useRedirect();
 
     useEffect(() => {
-        async function getData() {
-            const authUserID = session?.user.id;
-            if (!authUserID) throw new Error('User is not signed in.');
+        if (!user) return;
 
-            setUserID(authUserID);
+        const fetchRole = async () => {
+            try {
+                const docRef = doc(db, 'users', user.uid);
+                const docSnap = await getDoc(docRef);
+                if (!docSnap.exists()) throw new Error('User document not found');
+                setUserRole(docSnap.data().role);
+            } catch (err) {
+                console.error(err);
+            }
+        };
 
-            const userData = new GetUserData({ userID: authUserID });
-            const userRole = await userData.getUserRole();
-
-
-            setUserRole(userRole);
-        }
-        getData();
-    });
+        fetchRole();
+    }, [user]);
 
     useEffect(() => {
-        const handleClick = (e: any) => {
+        const handleClick = (e: MouseEvent) => {
             const menuEl = document.getElementById('navbar-menu');
             const btnEl = document.getElementById('navbar-menu-btn');
-
             if (!menuEl || !btnEl) {
                 setShowMenu(false);
                 return;
             }
-
-            if (!menuEl.contains(e.target) && !btnEl.contains(e.target)) {
+            if (!menuEl.contains(e.target as Node) && !btnEl.contains(e.target as Node)) {
                 setShowMenu(false);
             }
         };
 
-        if (showMenu) {
-            window.addEventListener('click', handleClick);
-        }
-
+        if (showMenu) window.addEventListener('click', handleClick);
         return () => window.removeEventListener('click', handleClick);
     }, [showMenu]);
 
-    const signOut = async () => {
-        const { error } = await supabase.auth.signOut();
-        if (!error) {
-            setSession(null);
+    const handleSignOut = async () => {
+        try {
+            await signOut(auth);
             navigate('/');
+        } catch (err) {
+            console.error('Sign out failed:', err);
         }
     };
 
@@ -71,7 +69,7 @@ const Navbar = () => {
     const SignOutButton = () => {
         return (
             <button
-                onClick={signOut}
+                onClick={handleSignOut}
                 className='px-4 py-2 bg-linear-to-t from-purple-700 to-indigo-600 text-white rounded-lg! border-none! hover:cursor-pointer w-full mb-4 mr-4 mt-2 ml-4'
             >
                 Sign out
@@ -87,7 +85,7 @@ const Navbar = () => {
                 }}
                 className='w-12 h-12 bg-(--surface-0) border-0! p-0! hover:cursor-pointer'
             >
-                <ProfileBadge id={userID} />
+                <ProfileBadge id={user?.uid ?? ''} />
             </button>
         );
     };
@@ -117,7 +115,7 @@ const Navbar = () => {
             {showMenu && (
                 <Menu>
                     <ThemeToggle />
-                    {session && <SignOutButton />}
+                    {user && <SignOutButton />}
                 </Menu>
             )}
 
@@ -125,7 +123,7 @@ const Navbar = () => {
                 {(userRole === 'student' && studentButtons) || teacherButtons}
             </div>
 
-            {session && <SettingsButton />}
+            {user && <SettingsButton />}
         </div>
     );
 };

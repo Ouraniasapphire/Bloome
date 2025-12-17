@@ -1,48 +1,57 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '~/clients/supabaseClient';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '~/clients/firebaseClient';
 import useProfileColor from '~/hooks/useProfileColor';
 
 type BadgeProps = {
     id: string;
     initials?: string;
     colorID?: string;
-    overrides?: string; // Optional style overrides
+    overrides?: string;
 };
 
-const ProfileBadge = (props: BadgeProps) => {
-    const [profileColorID, setProfileColorID] = useState<string | undefined>(props.colorID);
-    const [initials, setInitials] = useState('')
+const ProfileBadge = ({
+    id,
+    initials: initialsProp,
+    colorID: colorIDProp,
+    overrides,
+}: BadgeProps) => {
+    const [initials, setInitials] = useState('');
+    const [profileColorID, setProfileColorID] = useState<string | undefined>(colorIDProp);
 
-    const color = useProfileColor({ colorID: profileColorID ?? '' });
+    const color = useProfileColor({ colorID: colorIDProp ?? profileColorID ?? '' });
 
     useEffect(() => {
         async function getBadgeData() {
-            if (!props.id) return;
-            const { data, error } = await supabase
-                .from('user_settings')
-                .select('*')
-                .eq('id', props.id)
-                .single();
+            if (!id) return;
 
-            if (error) {
-                console.error(error);
-                return;
+            try {
+                const docRef = doc(db, 'user_settings', id);
+                const docSnap = await getDoc(docRef);
+
+                if (!docSnap.exists()) {
+                    console.warn('User settings not found for id:', id);
+                    return;
+                }
+
+                const data = docSnap.data() as { initials?: string; profile_color?: string };
+                setInitials(data.initials ?? '');
+                if (!colorIDProp) setProfileColorID(data.profile_color ?? '');
+            } catch (err) {
+                console.error('Failed to fetch profile badge data:', err);
             }
-
-            setInitials(data?.initials)
-            setProfileColorID(data?.profile_color);
         }
 
-        if (!props.colorID) getBadgeData();
-    }, [props.id, props.colorID]);
+        getBadgeData();
+    }, [id, colorIDProp]);
 
-
-    // keep initials prop for settings, use initials whenever else
     return (
-        <div className={`w-8 h-8 rounded-full font-bold flex items-center justify-center ${color} ${props.overrides}`}>
-            {props.initials || initials}
+        <div
+            className={`w-8 h-8 rounded-full font-bold flex items-center justify-center ${color} ${overrides}`}
+        >
+            {initialsProp || initials}
         </div>
     );
 };
 
-export default ProfileBadge
+export default ProfileBadge;

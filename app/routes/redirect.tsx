@@ -1,41 +1,33 @@
-// routes/redirect.tsx
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router';
-import { supabase } from '../clients/supabaseClient';
 import Loading from '~/components/loading/Loading';
-import { GetUserData } from '~/utils/getUserData';
-import useSession from '~/hooks/useSession';
+import useAuth from '~/hooks/useAuth';
+import useRedirect from '~/hooks/useRedirect';
 
 export default function Redirect() {
     const [loading, setLoading] = useState(true);
-    const navigate = useNavigate();
-    const session = useSession();
+    const { user, loading: authLoading } = useAuth(); // make sure your hook returns auth loading state
+    const redirect = useRedirect();
 
     useEffect(() => {
-        async function checkSession() {
-            const {data: {session}} = await supabase.auth.getSession()
 
-            const authUserID = session?.user.id; // Get ID from supabase user session
-            if (!authUserID) {
-                return;
-            }
-
-            const getUserData = new GetUserData({ userID: authUserID });
-            const urlParam = await getUserData.getDynamicKey();
-
-            if (session) {
-                navigate(`/${urlParam}/dashboard`, { replace: true });
-                setLoading(false);
-            } else {
-                navigate('/', { replace: true });
-                setLoading(false);
-            }
-
-            setLoading(false);
+        if (authLoading) return;
+        if (!user) {
+            window.location.href = '/';
+            return;
         }
 
-        checkSession();
-    }, [navigate]);
+        const doRedirect = async () => {
+            try {
+                await redirect('dashboard');
+            } catch (err) {
+                console.error('Redirect failed:', err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        doRedirect();
+    }, [user, authLoading, redirect]);
 
     return loading ? <Loading /> : null;
 }

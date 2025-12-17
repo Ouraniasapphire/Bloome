@@ -1,20 +1,37 @@
-import { useNavigate } from "react-router";
-import { GetUserData } from "~/utils/getUserData";
-import useSession from "./useSession";
-import { useState } from "react";
+import { useNavigate } from 'react-router';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '~/clients/firebaseClient';
+import useAuth from '~/hooks/useAuth';
 
 export default function useRedirect() {
     const navigate = useNavigate();
-    const [session] = useSession();
+    const { user } = useAuth();
 
     const redirect = async (url: string) => {
-        const authUserID = session?.user.id;
-        if (!authUserID) return;
+        if (!user) return;
 
-        const getUserData = new GetUserData({ userID: authUserID });
-        const urlParam = await getUserData.getDynamicKey();
+        try {
+            const docRef = doc(db, 'user_settings', user.uid);
+            const docSnap = await getDoc(docRef);
 
-        if (urlParam && url) navigate(`/${urlParam}/${url}`, { replace: true });
+            if (!docSnap.exists()) {
+                console.warn('No user_settings found for UID:', user.uid);
+                return; // just exit if the doc is missing
+            }
+
+            const dynamicKey = docSnap.data()?.dynamicKey;
+
+            if (!dynamicKey) {
+                console.warn('dynamicKey missing for UID:', user.uid);
+                return; // exit if dynamicKey is missing
+            }
+
+            // Navigate to the dynamic URL
+            navigate(`/${dynamicKey}/${url}`, { replace: true });
+            console.log('Navigated to:', `/${dynamicKey}/${url}`);
+        } catch (err) {
+            console.error('Redirect failed:', err);
+        }
     };
 
     return redirect;

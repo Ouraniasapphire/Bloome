@@ -1,116 +1,118 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '~/clients/supabaseClient';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { db } from '~/clients/firebaseClient';
 import ProfileBadge from '~/components/ProfileBadge/ProfileBage';
-import useSession from '~/hooks/useSession';
-import { GetUserData } from '~/utils/getUserData';
+import useAuth from '~/hooks/useAuth';
 
 const Settings = () => {
-    const [session] = useSession();
-    const [settings, setSettings] = useState<string[]>([]);
-    const [userID, setUserID] = useState('');
+    const { user } = useAuth();
+    const [settings, setSettings] = useState<{
+        name: string;
+        color: string;
+        initials: string;
+    } | null>(null);
 
     const [changedName, setChangedName] = useState('');
-
     const [changedColor, setChangedColor] = useState('');
-    const [currentColor, setCurrentColor] = useState('');
-
     const [changedInitials, setChangedInitials] = useState('');
+
+    const [currentColor, setCurrentColor] = useState('');
     const [currentInitials, setCurrentInitials] = useState('');
 
+    // Fetch user settings from Firestore
     useEffect(() => {
-        async function getUserSettings() {
-            const authUserID = session?.user.id;
-            if (!authUserID) return;
-            setUserID(authUserID);
+        if (!user) return;
 
-            const userData = new GetUserData({ userID: authUserID });
-
+        const fetchSettings = async () => {
             try {
-                const userSettings = await userData.getUserSettings();
-                setSettings(userSettings);
+                const docRef = doc(db, 'user_settings', user.uid);
+                const docSnap = await getDoc(docRef);
 
-                // initialize
-                setChangedName(userSettings[0] || '');
+                if (!docSnap.exists()) {
+                    // If user settings don't exist, create default
+                    await setDoc(docRef, {
+                        preferred_name: user.displayName ?? '',
+                        profile_color: '',
+                        initials: '',
+                    });
+                    setSettings({ name: user.displayName ?? '', color: '', initials: '' });
+                    setChangedName(user.displayName ?? '');
+                    setChangedColor('');
+                    setChangedInitials('');
+                    setCurrentColor('');
+                    setCurrentInitials('');
+                    return;
+                }
 
-                setCurrentColor(userSettings[1] || '');
-                setChangedColor(userSettings[1] || '');
-
-                setCurrentInitials(userSettings[2] || '');
-                setChangedInitials(userSettings[2] || '');
-            } catch (error) {
-                console.error(error);
-                setSettings([]);
+                const data = docSnap.data();
+                setSettings({
+                    name: data.preferred_name ?? '',
+                    color: data.profile_color ?? '',
+                    initials: data.initials ?? '',
+                });
+                setChangedName(data.preferred_name ?? '');
+                setChangedColor(data.profile_color ?? '');
+                setChangedInitials(data.initials ?? '');
+                setCurrentColor(data.profile_color ?? '');
+                setCurrentInitials(data.initials ?? '');
+            } catch (err) {
+                console.error('Error fetching settings:', err);
             }
-        }
+        };
 
-        getUserSettings();
-    }, [session]);
+        fetchSettings();
+    }, [user]);
 
-    if (settings.length === 0) {
-        return <p>Loading settings...</p>;
-    }
+    if (!settings) return <p>Loading settings...</p>;
 
-    const preferredName = settings[0];
-
-    // Update supabase table
-    async function updateSettings(props: { name?: string; color?: string; initials?: string }) {
-        try {
-            await supabase
-                .from('user_settings')
-                .update({
-                    preferred_name: props.name,
-                    profile_color: props.color,
-                    initials: props.initials,
-                })
-                .eq('id', userID);
-        } catch (error) {
-            console.error('Error updating settings:', error);
-        }
-    }
-
-    // Collect all changes and form the payload
+    // Update Firestore
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!user) return;
 
-        const updatePayload: { name?: string; color?: string; initials?: string } = {};
-        // if ( changedName && changedName !== settings[0]) updatePayload.name = changedName;
-        if (changedName !== settings[0]) updatePayload.name = changedName;
-        if (changedInitials && changedInitials !== currentInitials)
-            updatePayload.initials = changedInitials;
-        if (changedColor && changedColor !== currentColor) updatePayload.color = changedColor;
+        const docRef = doc(db, 'user_settings', user.uid);
+        const updatePayload: {
+            preferred_name?: string;
+            profile_color?: string;
+            initials?: string;
+        } = {};
+
+        if (changedName !== settings.name) updatePayload.preferred_name = changedName;
+        if (changedColor !== currentColor) updatePayload.profile_color = changedColor;
+        if (changedInitials !== currentInitials) updatePayload.initials = changedInitials;
 
         if (Object.keys(updatePayload).length === 0) return;
 
-        await updateSettings(updatePayload);
+        try {
+            await setDoc(docRef, { ...settings, ...updatePayload });
+            setSettings((prev) => ({ ...prev!, ...updatePayload }));
 
-        // Update state immediately for UI
-        setSettings((prev) => [
-            updatePayload.name ?? prev[0],
-            updatePayload.color ?? prev[1],
-            updatePayload.initials ?? prev[2],
-        ]);
-
-        if (updatePayload.color) setCurrentColor(updatePayload.color);
-        if (updatePayload.initials) setCurrentInitials(updatePayload.initials);
+            if (updatePayload.profile_color) setCurrentColor(updatePayload.profile_color);
+            if (updatePayload.initials) setCurrentInitials(updatePayload.initials);
+        } catch (err) {
+            console.error('Error updating settings:', err);
+        }
     };
 
     return (
         <div className='flex flex-row h-full box-border'>
             <div className='box-border p-4 w-1/2 h-full leading-none flex items-center justify-center'>
-                <div className='w-fit h-fit flex items-center justify-center space-x-8  bg-(--surface-0) shadow-md p-4 border-2 border-(--surface-100) rounded-full'>
-                    <ProfileBadge
-                        id={userID}
-                        initials={currentInitials}
-                        colorID={currentColor}
-                        key={currentColor}
-                        overrides={'!h-20 !w-20 !text-4xl'}
-                    />
-                    {changedName && <h1 className='font-bold text-4xl'>{preferredName}</h1>}
-                    
+                <div className='w-fit h-fit flex items-center justify-center space-x-8 bg-(--surface-0) shadow-md p-4 border-2 border-(--surface-100) rounded-full'>
+                    {user && (
+                        <>
+                            <ProfileBadge
+                                id={user.uid}
+                                initials={currentInitials}
+                                colorID={currentColor}
+                                key={currentColor}
+                                overrides='!h-20 !w-20 !text-4xl'
+                            />
+                            {changedName && <h1 className='font-bold text-4xl'>{changedName}</h1>}
+                        </>
+                    )}
                 </div>
-
-                <div></div>
             </div>
+
             <div
                 id='settings-right'
                 className='box-border p-4 w-1/2 border-l-2 border-(--surface-100) shadow-md'
@@ -146,7 +148,7 @@ const Settings = () => {
 
                 <div className='border-t border-gray-200 my-4' />
 
-                <button className='px-8! py-2!' onClick={handleSubmit}>
+                <button className='px-8 py-2' onClick={handleSubmit}>
                     Save
                 </button>
             </div>

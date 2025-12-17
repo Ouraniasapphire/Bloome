@@ -5,7 +5,7 @@ const StudioCard = (props: Class) => {
         <div className='h-fit relative rounded-2xl overflow-hidden shadow-md cursor-pointer bg-(--surface-0) border-2 border-(--card-accent) max-w-1/3 min-w-1/4 grow' onClick={() => {}}>
             <div className='relative h-36'>
                 <img
-                    src={`${props.hero_url || 'https://ksilnlvowovhdaevcdfh.supabase.co/storage/v1/object/public/class-hero/Placeholder-image.png'}`}
+                    src={`${props.hero_url || ''}`}
                     alt={`${props.name}`}
                     className='absolute inset-0 w-full h-full object-cover'
                 />
