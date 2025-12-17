@@ -35,13 +35,13 @@ const SignIn = (props: Props) => {
     return (
         <button
             onClick={props.action}
-            className='mx-4 my-8 px-8 py-4 text-(--surface-text) bg-(--surface-0) rounded-2xl! text-2xl 
-                       hover:cursor-pointer  font-bold flex flex-row items-center gap-4 border-2! border-(--surface-200)! hover:border-(--surface-300) hover:box-content'
+            className='m-4 p-2! text-white bg-linear-to-t from-purple-700 to-indigo-600 text-2xl 
+                       hover:cursor-pointer  font-bold flex flex-row items-center gap-4 border-0! rounded-full!'
         >
-            <div className='mr-auto'>
+            <div className='mr-auto bg-white p-2 rounded-full'>
                 <GoogleLogo />
             </div>
-            <span>Sign in with Google</span>
+            <span className='mr-2'>Sign in with Google</span>
         </button>
     );
 };

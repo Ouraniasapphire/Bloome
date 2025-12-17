@@ -107,7 +107,9 @@ const Settings = () => {
                                 key={currentColor}
                                 overrides='!h-20 !w-20 !text-4xl'
                             />
-                            {changedName && <h1 className='font-bold text-4xl'>{changedName}</h1>}
+                            {changedName && (
+                                <h1 className='font-bold text-4xl mr-2'>{changedName}</h1>
+                            )}
                         </>
                     )}
                 </div>
