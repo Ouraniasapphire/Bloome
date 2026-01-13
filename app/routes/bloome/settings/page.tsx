@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '~/clients/firebaseClient';
-import ProfileBadge from '~/components/ProfileBadge/ProfileBage';
+import ProfileBadge from '~/components/ProfileBadge/ProfileBadge';
 import useAuth from '~/hooks/useAuth';
 
 const Settings = () => {
@@ -95,9 +95,9 @@ const Settings = () => {
     };
 
     return (
-        <div className='flex flex-row h-full box-border'>
-            <div className='box-border p-4 w-1/2 h-full leading-none flex items-center justify-center'>
-                <div className='w-fit h-fit flex items-center justify-center space-x-8 bg-(--surface-0) shadow-md p-4 border-2 border-(--surface-100) rounded-full'>
+        <div className='flex flex-col  lg:flex-row h-full box-border '>
+            <div className='box-border p-4 leading-none flex items-center justify-center lg:w-1/2 lg:h-full sm:h-1/2 sm:w-full'>
+                <div className='w-fit h-fit flex items-center justify-center space-x-8 bg-(--surface-0-semi) shadow-md p-4 border-2 border-(--surface-100) rounded-full'>
                     {user && (
                         <>
                             <ProfileBadge
@@ -105,7 +105,7 @@ const Settings = () => {
                                 initials={currentInitials}
                                 colorID={currentColor}
                                 key={currentColor}
-                                overrides='!h-20 !w-20 !text-4xl'
+                                overrides='!h-20 !w-20 !text-4xl bg-(--surface-0-semi)'
                             />
                             {changedName && (
                                 <h1 className='font-bold text-4xl mr-2'>{changedName}</h1>
@@ -117,7 +117,7 @@ const Settings = () => {
 
             <div
                 id='settings-right'
-                className='box-border p-4 w-1/2 border-l-2 border-(--surface-100) shadow-md'
+                className='box-border p-4 w-full h-full lg:w-1/2 border-t-2 lg:border-t-0 lg:border-l-2 border-(--surface-100) shadow-md'
             >
                 <span className='flex items-center place-content-between'>
                     <h1>Preferred Name</h1>

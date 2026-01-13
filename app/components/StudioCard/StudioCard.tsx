@@ -1,22 +1,54 @@
 import { getAuth } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router';
 import type { Class } from '~/types/Class';
+import { db } from '~/clients/firebaseClient';
+import { useEffect, useState } from 'react';
 
 const StudioCard = (props: Class) => {
     const auth = getAuth();
     const user = auth.currentUser;
-
-    if(!user) {
-        return
-    }
-
     const navigate = useNavigate();
+
+    const [dynamicKey, setDynamicKey] = useState<string | null>(null);
+
+    useEffect(() => {
+        async function fetchDynamicKey() {
+            if (!user) return;
+
+            try {
+                const docRef = doc(db, 'user_settings', user.uid);
+                const docSnap = await getDoc(docRef);
+
+                if (!docSnap.exists()) {
+                    console.warn('No user_settings found for UID:', user.uid);
+                    return;
+                }
+
+                const key = docSnap.data()?.dynamicKey;
+                if (!key) {
+                    console.warn('dynamicKey missing for UID:', user.uid);
+                    return;
+                }
+
+                setDynamicKey(key); // store the key in state
+            } catch (err) {
+                console.error('Fetching dynamicKey failed:', err);
+            }
+        }
+
+        fetchDynamicKey();
+    }, [user]);
+
+    if (!user || !dynamicKey) {
+        return null; // or a loading state
+    }
 
     return (
         <div
-            className='h-fit relative rounded-2xl overflow-hidden shadow-md cursor-pointer bg-(--surface-0) border-2 border-(--card-accent) max-w-1/3 min-w-1/4 grow'
+            className='h-fit relative rounded-2xl overflow-hidden shadow-md cursor-pointer bg-(--surface-0) lg:max-w-1/3 lg:min-w-1/4 grow sm:min-w-full sm:max-w-full'
             onClick={() => {
-                navigate(`/${user.uid}/${props.id}/studio`);
+                navigate(`/${dynamicKey}/${props.id}/studio`);
             }}
         >
             <div className='relative h-36'>

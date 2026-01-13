@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import Icon from './Icon';
+import { components } from './Icon';
 import Menu from './Menu';
 import ThemeToggle from '../ThemeToggle/ThemeToggle';
 import { useNavigate } from 'react-router';
 import useRedirect from '~/hooks/useRedirect';
-import ProfileBadge from '../ProfileBadge/ProfileBage';
+import ProfileBadge from '../ProfileBadge/ProfileBadge';
 import useAuth from '~/hooks/useAuth';
 
 import { doc, getDoc } from 'firebase/firestore';
@@ -62,6 +62,30 @@ const Navbar = () => {
         }
     };
 
+    function useIsMdOrLower() {
+        const [isMdOrLower, setIsMdOrLower] = useState(
+            () => window.matchMedia('(max-width: 767px)').matches
+        );
+
+        useEffect(() => {
+            const mq = window.matchMedia('(max-width: 767px)');
+
+            const handler = (e: any) => setIsMdOrLower(e.matches);
+
+            mq.addEventListener('change', handler);
+            return () => mq.removeEventListener('change', handler);
+        }, []);
+
+        return isMdOrLower;
+    }
+
+    const isMdOrLower = useIsMdOrLower();
+
+    const Icon = components[0];
+    const Home = components[1];
+    const Manager = components[2];
+    const Admin = components[3];
+
     const handleShowMenu = () => {
         setShowMenu((prev) => !prev);
     };
@@ -83,7 +107,7 @@ const Navbar = () => {
                 onClick={() => {
                     redirect('settings');
                 }}
-                className='w-12 h-12 bg-(--surface-0) border-0! p-0! hover:cursor-pointer'
+                className='flex flex-center items-center w-12 h-12 border-0! p-0! m-0! hover:cursor-pointer bg-none!'
             >
                 <ProfileBadge id={user?.uid ?? ''} />
             </button>
@@ -92,26 +116,24 @@ const Navbar = () => {
 
     const studentButtons = [
         <button key='Dashboard' onClick={() => redirect('dashboard')}>
-            Dashboard
+            {isMdOrLower && <Home />}
         </button>,
     ];
 
     const teacherButtons = [
         <button key='Dashboard' onClick={() => redirect('dashboard')}>
-            Dashboard
+            {isMdOrLower ? <Home /> : 'Home'}
         </button>,
         <button key='Studio Manager' onClick={() => redirect('studio-manager')}>
-            {' '}
-            Studio Manager
+            {isMdOrLower ? <Manager /> : 'Studio Manager'}
         </button>,
         <button key='onboarding' onClick={() => redirect('onBoarding')}>
-            {' '}
-            Admin OnBoarding
+            {isMdOrLower ? <Admin /> : 'Admin Onboarding'}
         </button>,
     ];
 
     return (
-        <div className='bg-(--surface-0) w-full h-12 shadow-md flex flex-row items-center border-b-2 border-(--surface-100)'>
+        <div className='bg-(--surface-0-semi) w-full h-12 shadow-md flex flex-row items-center '>
             <div onClick={handleShowMenu} id='navbar-menu-btn'>
                 <Icon />
             </div>

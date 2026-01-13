@@ -1,3 +1,4 @@
+import { getAuth } from 'firebase/auth';
 import {
     doc,
     collection,
@@ -102,6 +103,21 @@ const onBoarding = () => {
         }
     }
 
+    async function resetLoginState(userID: string) {
+        if (!userID) throw new Error('Not authenticated');
+
+        const userRef = doc(db, 'users', userID);
+
+        try {
+            await updateDoc(userRef, {
+                initialLogin: true, // update this single field
+            });
+            console.log('initialLogin updated successfully');
+        } catch (err) {
+            console.error('Failed to update initialLogin:', err);
+        }
+    }
+
     return (
         <div className='p-4'>
             <h1 className='text-2xl font-bold mb-4'>Admin Onboarding</h1>
@@ -110,9 +126,9 @@ const onBoarding = () => {
                 {users.map((user) => (
                     <li
                         key={user.uid}
-                        className='flex items-center justify-between border p-2 rounded'
+                        className='flex items-center justify-between border p-2 rounded-xl!'
                     >
-                        <div>
+                        <div className='w-1/2 lg:w-full overflow-auto wrap-anywhere'>
                             <span className='font-medium'>
                                 {user.displayName || user.email || user.uid}
                             </span>
@@ -121,28 +137,34 @@ const onBoarding = () => {
                             )}
                         </div>
                         <div>
-                            <button
-                                onClick={() => onboardUser(user.uid)}
-                                disabled={
-                                    onboardStates[user.uid] === 'loading' ||
-                                    user.initialLogin === false
-                                }
-                                className={`px-3 py-1 rounded text-white ${
-                                    onboardStates[user.uid] === 'success'
-                                        ? 'bg-green-500 cursor-not-allowed'
-                                        : onboardStates[user.uid] === 'error'
-                                          ? 'bg-red-500'
-                                          : 'bg-blue-500 hover:bg-blue-600'
-                                }`}
-                            >
-                                {onboardStates[user.uid] === 'loading'
-                                    ? 'Onboarding...'
-                                    : onboardStates[user.uid] === 'success'
-                                      ? 'Done'
-                                      : onboardStates[user.uid] === 'error'
-                                        ? 'Retry'
-                                        : 'Onboard'}
-                            </button>
+                            {user.initialLogin && (
+                                <button
+                                    onClick={() => onboardUser(user.uid)}
+                                    className={`px-3 py-1 rounded-xl! text-white w-32 ${
+                                        onboardStates[user.uid] === 'success'
+                                            ? 'bg-green-500 cursor-not-allowed'
+                                            : onboardStates[user.uid] === 'error'
+                                              ? 'bg-red-500'
+                                              : 'bg-blue-500 hover:bg-blue-600'
+                                    }`}
+                                >
+                                    {onboardStates[user.uid] === 'loading'
+                                        ? 'Onboarding...'
+                                        : onboardStates[user.uid] === 'success'
+                                          ? 'Done'
+                                          : onboardStates[user.uid] === 'error'
+                                            ? 'Retry'
+                                            : 'Onboard'}
+                                </button>
+                            )}
+                            {!user.initialLogin && (
+                                <button
+                                    className={`px-3 py-1 rounded-xl! text-white bg-red-500 w-32`}
+                                    onClick={() => resetLoginState(user.uid)}
+                                >
+                                    RESET
+                                </button>
+                            )}
                         </div>
                     </li>
                 ))}

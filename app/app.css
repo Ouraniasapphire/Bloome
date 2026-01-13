@@ -11,6 +11,7 @@ button {
 :root {
     /* Light theming */
     --surface-0: #ffffff;
+    --surface-0-semi: #ffffff80;
     --surface-100: #f0f0f0;
     --surface-200: #e1e1e1;
     --surface-300: #d3d3d3;
@@ -22,6 +23,7 @@ button {
 
 [data-theme='dark'] {
     --surface-0: #1a1a1a;
+    --surface-0-semi: #1a1a1a80;
     --surface-100: #2f2f2f;
     --surface-200: #454545;
     --surface-300: #5d5d5d;
@@ -37,19 +39,39 @@ button {
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
 
+.background {
+    background-image:
+        linear-gradient(var(--surface-0-semi), var(--surface-0-semi)), url('/Background.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
 html,
 body {
-    @apply bg-(--surface-0) text-(--surface-text) h-[calc(100vh-48px)]; /* Offset height as: 100vh - navbar height */
+    /* Background image with semi-transparent overlay */
+    background-image:
+        linear-gradient(var(--surface-0-semi), var(--surface-0-semi)), url('/Background.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 
-    @media (prefers-color-scheme: dark) {
-        color-scheme: dark;
-    }
+    /* Text color from variable */
+    color: var(--surface-text);
+
+    /* Full height minus navbar */
+    height: 100vh;
+
+    /* Push content below navbar */
+
+    /* Ensure box-sizing includes padding in height calculation */
+    box-sizing: border-box;
 }
 
 /* Generic Styles */
 
 input {
-    @apply  border-b-2 p-2 border-(--surface-200) focus:outline-none focus:border-blue-500;
+    @apply border-b-2 p-2 border-(--surface-200) focus:outline-none focus:border-blue-500;
 }
 
 select {
@@ -57,7 +79,7 @@ select {
 }
 
 button {
-    @apply border-2 border-(--surface-200) rounded-sm py-2 px-4
+    @apply border-2 border-(--surface-200) rounded-sm py-2 px-4;
 }
 
 /* Custom Styles */
