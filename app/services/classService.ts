@@ -30,7 +30,7 @@ export async function fetchClassesByID(): Promise<ClassWithRole[]> {
             const classData = classSnap.data() as Class;
 
             return {
-                id: classData.id,
+                id: classSnap.id,
                 name: classData.name,
                 description: classData.description || '',
                 hour: classData.hour,
@@ -61,7 +61,7 @@ export async function enrollUserInFixedClass(
         const enrollmentRef = doc(collection(db, 'enrollments'));
 
         await setDoc(enrollmentRef, {
-            classID: classRef, // Firestore reference
+            classID: "R7zvt77ssD3VIhZv2cu1",
             userID: userUID, // store as string
             role: role,
         });

@@ -117,7 +117,7 @@ const Settings = () => {
 
             <div
                 id='settings-right'
-                className='box-border p-4 w-full h-full lg:w-1/2 border-t-2 lg:border-t-0 lg:border-l-2 border-(--surface-100) shadow-md'
+                className='box-border p-4 w-full h-full lg:w-1/2 border-t-2 lg:border-t-0 lg:border-l-2 border-(--surface-0-75) shadow-md'
             >
                 <span className='flex items-center place-content-between'>
                     <h1>Preferred Name</h1>
@@ -148,9 +148,12 @@ const Settings = () => {
                     </select>
                 </span>
 
-                <div className='border-t border-gray-200 my-4' />
+                <div className='border-t border-(--surface-text)! my-4' />
 
-                <button className='px-8 py-2' onClick={handleSubmit}>
+                <button
+                    className='px-8 py-2 rounded-xl! border-(--surface-text)!'
+                    onClick={handleSubmit}
+                >
                     Save
                 </button>
             </div>

@@ -146,7 +146,9 @@ const Navbar = () => {
             )}
 
             <div id='navbar-links' className='w-full'>
-                {(userRole === 'student' && studentButtons) || teacherButtons}
+                {userRole === 'student' && studentButtons}
+
+                {userRole === 'teacher' || userRole == 'admin' && teacherButtons }
             </div>
 
             {user && <SettingsButton />}

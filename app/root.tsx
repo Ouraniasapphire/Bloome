@@ -55,7 +55,10 @@ export default function App() {
         return (
             
             <ThemeProvider>
-                <Navbar />
+                <div className='bg-transparent'>
+                    <Navbar />
+                </div>
+                
                 <Outlet />
             </ThemeProvider>
         );

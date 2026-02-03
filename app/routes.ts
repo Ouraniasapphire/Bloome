@@ -25,7 +25,7 @@ export default [
         file: 'routes/bloome/admin/onboarding/page.tsx',
     },
     {
-        path: ':userid/:classID/studio',
+        path: ':userid/:classId/studio',
         file: 'routes/bloome/studio/page.tsx',
     },
 

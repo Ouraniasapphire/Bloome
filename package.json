@@ -6,7 +6,8 @@
     "build": "react-router build",
     "dev": "react-router dev --host",
     "start": "react-router-serve ./build/server/index.js",
-    "typecheck": "react-router typegen && tsc"
+    "typecheck": "react-router typegen && tsc",
+    "pm2": "pm2 start npm --name 'vite-dev' -- run dev && pm2 monit"
   },
   "dependencies": {
     "@dataconnect/generated": "file:src/dataconnect-generated",
